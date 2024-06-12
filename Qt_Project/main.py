@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QGridLayout, QWidget, QPushButton, QMessageBox, QLabel, QLineEdit, QVBoxLayout, QAction, QColorDialog, QFileDialog, QMenu)
+from PyQt5.QtWidgets import QApplication, QMainWindow, QGridLayout, QWidget, QPushButton, QMessageBox, QLabel, QLineEdit, QVBoxLayout, QAction, QColorDialog, QFileDialog, QMenu
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QFont
 
@@ -114,10 +114,13 @@ class SuperTicTacToe(QMainWindow):
 
         load_action = QAction("Load", self)
         save_action = QAction("Save", self)
+        reset_action = QAction("Reset", self)
         state_menu.addAction(load_action)
         state_menu.addAction(save_action)
+        state_menu.addAction(reset_action)
         load_action.triggered.connect(self.load_game)
         save_action.triggered.connect(self.save_game)
+        reset_action.triggered.connect(self.reset_board)
 
         colour_menu = QMenu("Изменить цвета", self)
         change_colour_x_action = QAction("Цвет X", self)
@@ -132,7 +135,7 @@ class SuperTicTacToe(QMainWindow):
 
         edit_menu.addMenu(colour_menu)
 
-        change_colour_x_action.triggered.connect(lambda: self.change_colour(""))
+        change_colour_x_action.triggered.connect(lambda: self.change_colour("X"))
         change_colour_o_action.triggered.connect(lambda: self.change_colour("O"))
         change_colour_main_action.triggered.connect(lambda: self.change_colour("main"))
         change_highlight_colour_action.triggered.connect(lambda: self.change_colour("highlight"))
@@ -220,10 +223,14 @@ class SuperTicTacToe(QMainWindow):
             if self.check_winner():
                 self.game_over = True
                 QMessageBox.information(self, "Конец игры", f" {current_player_name1} победил(а)!")
+                self.reset_board()
+                return
         elif self.check_draw(row, col):
             self.sub_board_status[row][col] = "Draw"
             self.game_over = True
             QMessageBox.information(self, "Конец игры", "Ничья!")
+            self.reset_board()
+            return
         self.current_player = "㋡" if self.current_player == "⛌" else "⛌"
         self.current_player_label.setText(f"Текущий игрок: {current_player_name}")
         self.next_board = (sub_row, sub_col) if self.sub_board_status[sub_row][sub_col] is None else None
@@ -272,6 +279,29 @@ class SuperTicTacToe(QMainWindow):
         if self.sub_board_status[0][2] == self.sub_board_status[1][1] == self.sub_board_status[2][0] is not None:
             return True
         return False
+
+    def reset_board(self):
+        self.current_player = "⛌"
+        self.game_over = False
+        self.next_board = None
+        self.current_player_label.setText(f"Текущий игрок: {self.current_player}")
+
+        for row in range(self.board_size):
+            for col in range(self.board_size):
+                for sub_row in range(self.sub_board_size):
+                    for sub_col in range(self.sub_board_size):
+                        button = self.board[row][col][sub_row][sub_col]
+                        button.setText("")
+                        button.setEnabled(True)
+                        button.setVisible(True)
+                        button.setStyleSheet(f"font-size: 24px; background-color: {self.colour_main};")
+
+                sub_board_widget = self.grid_layout.itemAtPosition(row, col).widget()
+                for child in sub_board_widget.children():
+                    if isinstance(child, QLabel):
+                        child.deleteLater()
+                self.sub_board_status[row][col] = None
+        self.highlight_available_moves()
 
     def highlight_available_moves(self):
         for row in range(self.board_size):
