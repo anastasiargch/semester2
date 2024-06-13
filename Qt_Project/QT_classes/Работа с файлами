@@ -1,0 +1,36 @@
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QTextEdit
+
+class FileExample(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        # Open file button
+        self.open_button = QPushButton('Открыть файл', self)
+        self.open_button.clicked.connect(self.openFile)
+        layout.addWidget(self.open_button)
+
+        # TextEdit to display file content
+        self.text_edit = QTextEdit(self)
+        layout.addWidget(self.text_edit)
+
+        self.setLayout(layout)
+        self.setWindowTitle('Пример работы с файлами')
+        self.show()
+
+    def openFile(self):
+        options = QFileDialog.Options()
+        file_name, _ = QFileDialog.getOpenFileName(self, 'Открыть файл', '', 'All Files (*);;Text Files (*.txt)', options=options)
+        if file_name:
+            with open(file_name, 'r') as file:
+                content = file.read()
+                self.text_edit.setText(content)
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = FileExample()
+    sys.exit(app.exec_())
