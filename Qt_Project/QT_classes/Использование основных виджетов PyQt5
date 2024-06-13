@@ -29,6 +29,7 @@ class Example(QWidget):
 
         self.setLayout(layout)
         self.setWindowTitle('Пример PyQt5')
+        self.setGeometry(800, 400, 300, 200)
         self.show()
 
     def showText(self):
