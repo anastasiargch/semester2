@@ -1,0 +1,41 @@
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QComboBox, QVBoxLayout
+
+class Example(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        # QLabel
+        self.label = QLabel('Введите текст:', self)
+        layout.addWidget(self.label)
+
+        # QLineEdit
+        self.lineEdit = QLineEdit(self)
+        layout.addWidget(self.lineEdit)
+
+        # QPushButton
+        self.button = QPushButton('Отобразить текст', self)
+        self.button.clicked.connect(self.showText)
+        layout.addWidget(self.button)
+
+        # QComboBox
+        self.comboBox = QComboBox(self)
+        self.comboBox.addItems(['Option 1', 'Option 2', 'Option 3'])
+        layout.addWidget(self.comboBox)
+
+        self.setLayout(layout)
+        self.setWindowTitle('Пример PyQt5')
+        self.show()
+
+    def showText(self):
+        text = self.lineEdit.text()
+        self.label.setText(f'Вы ввели: {text}')
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = Example()
+    sys.exit(app.exec_())
